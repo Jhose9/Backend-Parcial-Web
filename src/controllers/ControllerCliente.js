@@ -3,7 +3,7 @@ import pool from "../config/database.js";
 const GetClienteByCedula = async (req, res) => {
   try {
     const [data] = await pool.query(
-      `SELECT * FROM cliente WHERE cedula = ${req.params.cedula}`
+      `SELECT * FROM clientes WHERE cedula = ${req.params.cedula}`
     );
     if (data) {
       res.json(data);
@@ -18,7 +18,7 @@ const GetClienteByCedula = async (req, res) => {
 
 const GetAllClientes = async (req, res) => {
   try {
-    const [data] = await pool.query(`SELECT * FROM cliente`);
+    const [data] = await pool.query(`SELECT * FROM clientes`);
     if (data) {
       res.json(data);
     } else {
@@ -32,10 +32,10 @@ const GetAllClientes = async (req, res) => {
 
 const UpdateCliente = (req, res) => {
   try {
-    const { nombre, correo, nacionalidad, tipopago, sexo, edad } = req.body;
+    const { nombre, correo, nacionalidad, caso, sexo, edad } = req.body;
 
     pool.query(
-      `UPDATE cliente SET nombre = "${nombre}", correo = "${correo}", nacionalidad = "${nacionalidad}", tipopago = "${tipopago}", sexo = "${sexo}", edad = ${edad} WHERE cedula = ${req.params.cedula} `
+      `UPDATE clientes SET nombre = "${nombre}", correo = "${correo}", nacionalidad = "${nacionalidad}", caso = "${caso}", sexo = "${sexo}", edad = ${edad} WHERE cedula = ${req.params.cedula} `
     );
 
     res.status(200).json({ ok: true, msg: "actualizo" });
@@ -47,8 +47,8 @@ const UpdateCliente = (req, res) => {
 
 const DeleteCliente = (req, res) => {
   try {
-    pool.query(`DELETE FROM cliente WHERE cedula = ${req.params.cedula}`);
-    res.json({ ok: true, msg: "se elimino el cliente" });
+    pool.query(`DELETE FROM clientes WHERE cedula = ${req.params.cedula}`);
+    res.json({ ok: true, msg: "se elimino el clientes" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "error del servidor" });
@@ -57,24 +57,25 @@ const DeleteCliente = (req, res) => {
 
 const PostCliente = (req, res) => {
   try {
-    const { nombre, cedula, correo, nacionalidad, tipopago, sexo, edad } =
+    const { nombre, cedula, correo, nacionalidad, caso, sexo, edad } =
       req.body;
     if (
       !nombre ||
       !cedula ||
       !correo ||
       !nacionalidad ||
-      !tipopago ||
+      !caso ||
       !sexo ||
       !edad
     ) {
       res.status(400).json({ ok: false, msg: "error al ingresar datos" });
     }
-    pool.query(`INSERT INTO cliente (nombre, cedula, correo, nacionalidad, tipopago, sexo, edad) 
-    VALUES("${nombre}", "${cedula}", "${correo}", "${nacionalidad}", "${tipopago}", "${sexo}", ${edad})`);
+    pool.query(`INSERT INTO clientes (nombre, cedula, correo, nacionalidad, caso, sexo, edad) 
+    VALUES("${nombre}", "${cedula}", "${correo}", "${nacionalidad}", "${caso}", "${sexo}", ${edad})`);
     res.json({ ok: true });
   } catch (error) {
     console.log(error);
+    console.log(nombre, cedula, correo, nacionalidad, caso, sexo, edad);
   }
 };
 
