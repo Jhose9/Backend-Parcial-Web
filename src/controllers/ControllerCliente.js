@@ -30,20 +30,37 @@ const GetAllClientes = async (req, res) => {
   }
 };
 
-const UpdateCliente = (req, res) => {
+const UpdateCliente = async (req, res) => {
   try {
     const { nombre, correo, nacionalidad, caso, sexo, edad } = req.body;
 
-    pool.query(
-      `UPDATE clientes SET nombre = "${nombre}", correo = "${correo}", nacionalidad = "${nacionalidad}", caso = "${caso}", sexo = "${sexo}", edad = ${edad} WHERE cedula = ${req.params.cedula} `
-    );
+    const [results] = await pool.query(`SELECT * FROM clientes WHERE cedula = ${req.params.cedula}`);
 
-    res.status(200).json({ ok: true, msg: "actualizo" });
+    const clienteActual = results[0]; 
+    
+    const nuevoNombre = nombre !== undefined ? nombre : clienteActual.nombre;
+    const nuevoCorreo = correo !== undefined ? correo : clienteActual.correo;
+    const nuevaNacionalidad = nacionalidad !== undefined ? nacionalidad : clienteActual.nacionalidad;
+    const nuevoCaso = caso !== undefined ? caso : clienteActual.caso;
+    const nuevoSexo = sexo !== undefined ? sexo : clienteActual.sexo;
+    const nuevaEdad = edad !== undefined ? edad : clienteActual.edad;
+
+
+    if (nombre !== undefined || correo !== undefined || nacionalidad !== undefined || caso !== undefined || sexo !== undefined || edad !== undefined) {
+      await pool.query(
+        `UPDATE clientes SET nombre = "${nuevoNombre}", correo = "${nuevoCorreo}", nacionalidad = "${nuevaNacionalidad}", caso = "${nuevoCaso}", sexo = "${nuevoSexo}", edad = ${nuevaEdad} WHERE cedula = ${req.params.cedula}`
+      );
+
+      res.status(200).json({ ok: true, msg: "actualizado" });
+    } else {
+      res.status(200).json({ ok: true, msg: "sin cambios en los campos" });
+    }
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "error del servidor" });
   }
 };
+
 
 const DeleteCliente = (req, res) => {
   try {
